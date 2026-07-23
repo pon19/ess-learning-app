@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>しょうがく1ねんせい さんすうWebプリント - ぶんしょうもんだい</title>
+    <!-- CSSファイルの読み込み -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <!-- ヘッダー -->
+    <div class="header">
+        <div>
+            <span class="title-badge">しょうがく1ねんせい</span>
+            <h1>さんすうプリント（1にちめ）</h1>
+        </div>
+        <div class="name-box">
+            なまえ：____________________
+        </div>
+    </div>
+
+    <!-- 1. 計算問題 -->
+    <div class="section-title">1. けいさん もんだいを しましょう</div>
+    <div class="calc-grid" id="calcGrid">
+    </div>
+
+    <!-- 2. 文章問題（JavaScriptでランダム挿入） -->
+    <div class="section-title">2. ぶんしょうもんだい</div>
+    <div id="wordProblemArea">
+        <!-- ここにJavaScriptから問題が自動挿入されます -->
+    </div>
+
+   <!-- 答え合わせボタン・更新ボタンと結果エリア -->
+    <button class="btn-check" id="checkBtn">こたえあわせをする 💮</button>
+    <div class="score-display" id="scoreBox"></div>
+    <button class="btn-reset" id="resetBtn">あたらしい もんだいに する 🔄</button>
+</div>
+
+<!-- JavaScriptファイルの読み込み -->
+<script src="script.js"></script>
+</body>
+</html>
