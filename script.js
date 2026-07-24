@@ -1,4 +1,4 @@
-const GEMINI_API_KEY = "AQ.Ab8RN6L_aVgGUuoXLdCliSppPdfPagQ2pAHmExASMYl5iTRcDw";
+const GEMINI_API_KEY = "AQ.Ab8RN6IIZsGJv6Ol9BVx37i4N_evbnkFnsJ2cj-AoqWJqDu5zw";
 
 document.addEventListener('DOMContentLoaded', () => {
     loadOrGenerateAll(false);
