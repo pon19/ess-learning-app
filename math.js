@@ -305,7 +305,8 @@ async function checkAnswersAndSave() {
             .insert([
                 {
                     user_id: currentUser.id,
-                    score: finalScore
+                    score: finalScore,
+                    total_questions: totalQuestions
                 }
             ]);
 
