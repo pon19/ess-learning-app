@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1ねんせいの メニュー - えがおプリント</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../common.js"></script>
+    <script src="menu.js" defer></script>
+</head>
+<body style="font-family: sans-serif; background-color: #f7fafc; padding: 20px; max-width: 500px; margin: 0 auto;">
+
+    <!-- 共通ヘッダー -->
+    <div id="globalHeader"></div>
+
+    <div style="text-align: center;">
+        <h1 style="color: #2b6cb0; font-size: 1.5rem; margin-bottom: 20px;">🎒 1ねんせいの メニュー</h1>
+        
+        <!-- 教科選択グリッド -->
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+            <a href="math.html" style="background: white; border: 2px solid #4299e1; padding: 15px; border-radius: 12px; text-decoration: none; color: #2b6cb0; font-weight: bold; font-size: 1.2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: transform 0.1s;">
+                🔢 さんすう (計算)
+            </a>
+            <!-- 今後教科が増えたらここに追加 -->
+        </div>
+
+        <!-- 🏆 前日の回答者ランキングエリア -->
+        <div style="margin-top: 35px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: left;">
+            <h3 style="margin-top: 0; color: #2b6cb0; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                🏆 きのうの がんばりやさん（ランキング）
+            </h3>
+            <p style="font-size: 12px; color: #718096; margin-bottom: 12px;">※きのう プリントを といた おともだちの きろくです</p>
+
+            <div id="rankingList">
+                <p style="color: #a0aec0; font-size: 14px; text-align: center;">読み込み中...</p>
+            </div>
+        </div>
+
+        <!-- 戻るボタン -->
+        <div style="margin-top: 30px;">
+            <a href="../index.html" style="color: #718096; text-decoration: none; font-size: 14px; font-weight: bold;">← 学年選択にもどる</a>
+        </div>
+    </div>
+
+</body>
+</html>
