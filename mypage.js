@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    // ログインチェック
+    // 1. ログインチェック
     const user = await getCurrentUser();
     if (!user) {
         alert('ログインが必要です。');
@@ -7,45 +7,75 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
+    // 2. DOM要素の取得（mypage.html の ID に完全対応）
     const displayNameView = document.getElementById('displayNameView');
     const phoneView = document.getElementById('phoneView');
+    const gradeView = document.getElementById('gradeView');
     const nicknameInput = document.getElementById('mypageNickname');
     const emailInput = document.getElementById('mypageEmail');
     const passwordInput = document.getElementById('mypagePassword');
-    const updateForm = document.getElementById('updateProfileForm');
+    const updateForm = document.getElementById('updateProfileForm'); // ★ ID修正
     const msg = document.getElementById('mypageMsg');
+    const backBtn = document.getElementById('backBtn'); // ★ ID修正
 
-    // 1. 現在の情報を画面に反映
-    emailInput.value = user.email || '';
+    // メールアドレスの初期セット
+    if (emailInput) {
+        emailInput.value = user.email || '';
+    }
 
+    // ----------------------------------------------------
+    // 3. プロフィール情報 & 学年データの取得（自動進級チェック含む）
+    // ----------------------------------------------------
+    // common.js の getUserProfileInfo を呼び出すことで自動進級処理が実行される
+    const { displayName, gradeLabel } = await getUserProfileInfo(user.id);
+
+    // DB から display_name, phone を取得
     const { data: profile, error } = await clientSupabase
         .from('profiles')
-        .select('display_name, nickname, phone')
+        .select('display_name, phone')
         .eq('id', user.id)
         .maybeSingle();
 
-    if (profile) {
-        displayNameView.textContent = profile.display_name || '（未設定）';
-        phoneView.textContent = profile.phone || '（未設定）';
-        nicknameInput.value = profile.nickname || '';
+    if (error) {
+        console.error('プロフィール取得エラー:', error);
     }
 
-    // 2. 変更保存処理
+    // 画面表示へ反映
+    if (profile) {
+        if (displayNameView) displayNameView.textContent = profile.display_name || '（未設定）';
+        if (phoneView) phoneView.textContent = profile.phone || '（未設定）';
+    }
+
+    if (gradeView) {
+        gradeView.textContent = gradeLabel || '未設定';
+    }
+
+    if (nicknameInput) {
+        nicknameInput.value = displayName || '';
+    }
+
+    // ----------------------------------------------------
+    // 4. プロフィール更新（ニックネーム・メール・パスワード）処理
+    // ----------------------------------------------------
     updateForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const newNickname = nicknameInput.value.trim();
-        const newEmail = emailInput.value.trim();
-        const newPassword = passwordInput.value;
+        const newNickname = nicknameInput ? nicknameInput.value.trim() : '';
+        const newEmail = emailInput ? emailInput.value.trim() : '';
+        const newPassword = passwordInput ? passwordInput.value : '';
 
         if (!newNickname) {
-            msg.style.color = 'red';
-            msg.textContent = 'ニックネームを入力してください。';
+            if (msg) {
+                msg.style.color = 'red';
+                msg.textContent = 'ニックネームを入力してください。';
+            }
             return;
         }
 
-        msg.style.color = 'black';
-        msg.textContent = '保存中...';
+        if (msg) {
+            msg.style.color = 'black';
+            msg.textContent = '保存中...';
+        }
 
         try {
             // ① ニックネームの更新 (profiles テーブル)
@@ -58,7 +88,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // ② メールアドレス・パスワードの更新 (Supabase Auth)
             const authUpdates = {};
-            if (newEmail !== user.email) authUpdates.email = newEmail;
+            if (newEmail && newEmail !== user.email) authUpdates.email = newEmail;
             if (newPassword) authUpdates.password = newPassword;
 
             if (Object.keys(authUpdates).length > 0) {
@@ -66,24 +96,34 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (authError) throw authError;
             }
 
-            msg.style.color = 'green';
-            msg.textContent = '変更を保存しました！';
-            passwordInput.value = ''; // パスワード欄をクリア
+            if (msg) {
+                msg.style.color = 'green';
+                msg.textContent = '変更を保存しました！';
+            }
+            if (passwordInput) passwordInput.value = '';
+
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
 
         } catch (err) {
             console.error('更新エラー:', err);
-            msg.style.color = 'red';
-            msg.textContent = `エラー: ${err.message || '更新に失敗しました。'}`;
+            if (msg) {
+                msg.style.color = 'red';
+                msg.textContent = `エラー: ${err.message || '更新に失敗しました。'}`;
+            }
         }
     });
-    // 戻るボタンのイベントハンドラーを追加
-    const backBtn = document.getElementById('backBtn');
+
+    // ----------------------------------------------------
+    // 5. 前のページへ戻るボタン処理
+    // ----------------------------------------------------
     backBtn?.addEventListener('click', () => {
-        // 同じサイト内の別ページから移動してきた場合
+        // 同じサイト内から遷移してきた場合はひとつ前の画面に戻る
         if (document.referrer && document.referrer.includes(window.location.host)) {
-            history.back(); // 元いたページに戻る
+            history.back();
         } else {
-            window.location.href = 'index.html'; // 直接開いた場合はトップへ
+            window.location.href = 'index.html';
         }
     });
 });
