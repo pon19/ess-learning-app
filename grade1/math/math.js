@@ -1,19 +1,35 @@
 // グローバル変数
 let currentProblems = []; 
-let currentWordProblems = []; // 文章問題用を追加
+let currentWordProblems = []; 
 let currentUser = null;    
 
 // ====================================================
 // 1. 初期化処理
 // ====================================================
 document.addEventListener('DOMContentLoaded', async () => {
-    // ログイン情報の取得と、プリントへの「なまえ」表示
-    currentUser = await getCurrentUser();
-    if (currentUser) {
-        const nameBox = document.getElementById('userProfileName');
-        if (nameBox) {
-            const displayName = await getUserDisplayName(currentUser.id);
-            nameBox.textContent = `なまえ： ${displayName} さん`;
+    const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : (typeof supabase !== 'undefined' ? supabase : null);
+
+    // ユーザー情報の取得と表示、および本日回答済みチェック
+    if (supabaseClient) {
+        try {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (user) {
+                currentUser = user;
+                const nameBox = document.getElementById('userProfileName');
+                if (nameBox) {
+                    const displayName = await getUserDisplayName(currentUser.id);
+                    nameBox.textContent = `なまえ： ${displayName} さん`;
+                }
+
+                // ★ 本日すでに送信済みかチェック
+                const todayScore = await checkTodaySubmitted(currentUser.id, 1);
+                if (todayScore) {
+                    showAlreadySubmittedView(todayScore);
+                    return; // 提出済みの場合はこれ以降の読み込みを行わない
+                }
+            }
+        } catch (err) {
+            console.error('ユーザー認証・初期チェックエラー:', err);
         }
     }
 
@@ -25,21 +41,101 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ====================================================
-// 2. DBから「今日の問題」を取得
+// 2. 本日の送信履歴を取得（重複チェック）
 // ====================================================
-async function loadTodayProblems() {
+async function checkTodaySubmitted(userId, grade) {
+    const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : (typeof supabase !== 'undefined' ? supabase : null);
+    if (!supabaseClient) return null;
+
     try {
-        // math.html 側の JavaScript 例
         const now = new Date();
         const year = now.getFullYear();
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const day = String(now.getDate()).padStart(2, '0');
-        const todayStr = `${year}-${month}-${day}`; // 正確なYYYY-MM-DD (日本時間)
+        const todayStr = `${year}-${month}-${day}`;
 
-        // まずは確実に存在する problems のみを取得してエラーを防ぐ
-        const { data, error } = await clientSupabase
+        // 生成列 created_date と比較して重複チェック
+        const { data, error } = await supabaseClient
+            .from('learning_scores_pb')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('grade', grade)
+            .eq('subject', 'math')
+            .eq('created_date', todayStr)
+            .maybeSingle();
+
+        if (error) {
+            console.error('履歴チェックエラー:', error);
+            return null;
+        }
+        return data;
+    } catch (e) {
+        console.error('履歴チェック例外エラー:', e);
+        return null;
+    }
+}
+
+// ====================================================
+// 3. 回答済みの場合の画面表示制御（パターンB・強力適用版）
+// ====================================================
+function showAlreadySubmittedView(scoreData) {
+    const calcGrid = document.getElementById('calcGrid');
+    const wordProblemArea = document.getElementById('wordProblemArea');
+    const checkBtn = document.getElementById('checkBtn');
+    const scoreBox = document.getElementById('scoreBox');
+
+    // セクションタイトルを強制非表示
+    const sectionTitles = document.querySelectorAll('.section-title');
+    sectionTitles.forEach(title => {
+        title.style.setProperty('display', 'none', 'important');
+    });
+
+    // 計算問題・文章問題のエリアおよびボタンを強制非表示
+    if (calcGrid) {
+        calcGrid.classList.add('hidden');
+        calcGrid.style.setProperty('display', 'none', 'important');
+    }
+    if (wordProblemArea) {
+        wordProblemArea.classList.add('hidden');
+        wordProblemArea.style.setProperty('display', 'none', 'important');
+    }
+    if (checkBtn) {
+        checkBtn.style.setProperty('display', 'none', 'important');
+    }
+
+    // 結果メッセージエリアのみを表示
+    if (scoreBox) {
+        scoreBox.classList.remove('hidden');
+        scoreBox.style.setProperty('display', 'block', 'important');
+        scoreBox.innerHTML = `
+            <h2>💮 きょうの チャレンジは すでに かんりょう しています！</h2>
+            <p style="font-size: 1.25rem; font-weight: bold; margin: 15px 0; color: #2b6cb0;">
+                てんすう： ${scoreData.score} てん
+            </p>
+            <p style="color: #4a5568; margin-top: 10px;">
+                また あした ちょうせんしてね！ 💮
+            </p>
+        `;
+    }
+}
+
+// ====================================================
+// 4. DBから「今日の問題」を取得
+// ====================================================
+async function loadTodayProblems() {
+    try {
+        const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : (typeof supabase !== 'undefined' ? supabase : null);
+        if (!supabaseClient) return;
+
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const todayStr = `${year}-${month}-${day}`;
+
+        const { data, error } = await supabaseClient
             .from('daily_problems')
-            .select('*') // * にすることで存在する列だけを安全に取得
+            .select('*')
             .eq('target_date', todayStr)
             .eq('grade', 1)
             .eq('subject', 'math')
@@ -48,21 +144,18 @@ async function loadTodayProblems() {
         if (error) throw error;
 
         if (data) {
-            // 計算問題のセット
             if (data.problems && data.problems.length > 0) {
                 currentProblems = data.problems;
             } else {
                 currentProblems = getFallbackProblems();
             }
 
-            // 文章問題のセット（列が存在し、データがある場合）
             if (data.word_problems && data.word_problems.length > 0) {
                 currentWordProblems = data.word_problems;
             } else {
                 currentWordProblems = getFallbackWordProblems();
             }
         } else {
-            // 本日のデータ自体が未登録の場合
             console.warn('本日のデータが未登録のため予備問題を表示します。');
             currentProblems = getFallbackProblems();
             currentWordProblems = getFallbackWordProblems();
@@ -81,7 +174,7 @@ async function loadTodayProblems() {
 }
 
 // ====================================================
-// 3. 計算問題を画面に描画
+// 5. 計算問題の描画
 // ====================================================
 function renderProblems(problems) {
     const calcGrid = document.getElementById('calcGrid');
@@ -91,53 +184,40 @@ function renderProblems(problems) {
 
     problems.forEach((p, index) => {
         const div = document.createElement('div');
-        div.style.display = 'flex';
-        div.style.alignItems = 'center';
-        div.style.justifyContent = 'space-between';
-        div.style.padding = '12px 0';
-        div.style.borderBottom = '1px solid #e2e8f0';
-        div.style.fontSize = '1.3rem';
-        div.style.fontWeight = 'bold';
+        div.className = 'calc-item';
 
         div.innerHTML = `
             <div>
-                <span style="color: #718096; font-size: 1rem; margin-right: 10px;">(${index + 1})</span>
+                <span class="problem-index">(${index + 1})</span>
                 <span>${p.p1} ${p.operator} ${p.p2} ＝</span>
             </div>
-            <input type="number" id="answer_${index}" style="width: 70px; height: 40px; font-size: 1.3rem; text-align: center; border: 2px solid #cbd5e0; border-radius: 8px;" pattern="\\d*">
+            <input type="number" id="answer_${index}" class="input-answer-num" pattern="\\d*">
         `;
         calcGrid.appendChild(div);
     });
 }
 
 // ====================================================
-// 4. 文章問題を画面に描画
+// 6. 文章問題の描画
 // ====================================================
 function renderWordProblems(wordProblems) {
-    // HTMLにある「wordProblemArea」を取得
     const wordProblemArea = document.getElementById('wordProblemArea');
     if (!wordProblemArea) return;
 
-    // 中身をリセット
     wordProblemArea.innerHTML = '';
 
-    // 文章問題カードを作成して追加
     wordProblems.forEach((wp, index) => {
         const div = document.createElement('div');
-        div.style.padding = '15px';
-        div.style.marginBottom = '15px';
-        div.style.backgroundColor = '#f7fafc';
-        div.style.borderRadius = '8px';
-        div.style.border = '1px solid #e2e8f0';
+        div.className = 'word-card';
 
         div.innerHTML = `
-            <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; line-height: 1.5;">
-                <span style="color: #718096; font-size: 1rem; margin-right: 5px;">(${index + 1})</span>
+            <div class="word-text">
+                <span class="problem-index">(${index + 1})</span>
                 ${wp.text}
             </div>
-            <div style="display: flex; gap: 15px; align-items: center; justify-content: flex-end; font-size: 1.2rem; font-weight: bold;">
-                しき：<input type="text" id="wp_eq_${index}" style="width: 120px; height: 40px; font-size: 1.2rem; text-align: center; border: 2px solid #cbd5e0; border-radius: 8px;">
-                こたえ：<input type="number" id="wp_ans_${index}" style="width: 70px; height: 40px; font-size: 1.2rem; text-align: center; border: 2px solid #cbd5e0; border-radius: 8px;">
+            <div class="word-formula-group">
+                しき：<input type="text" id="wp_eq_${index}" class="input-eq-text">
+                こたえ：<input type="number" id="wp_ans_${index}" class="input-answer-num">
             </div>
         `;
         wordProblemArea.appendChild(div);
@@ -145,9 +225,12 @@ function renderWordProblems(wordProblems) {
 }
 
 // ====================================================
-// 5. 答え合わせ ＆ 成績保存
+// 7. 答え合わせ ＆ 成績保存
 // ====================================================
 async function checkAnswersAndSave() {
+    const checkBtn = document.getElementById('checkBtn');
+    if (checkBtn) checkBtn.disabled = true; // 連打防止
+
     let correctCount = 0;
     const totalCount = currentProblems.length + currentWordProblems.length;
 
@@ -157,6 +240,7 @@ async function checkAnswersAndSave() {
     currentProblems.forEach((problem, index) => {
         const inputEl = document.getElementById(`answer_${index}`);
         if (!inputEl) return;
+        inputEl.disabled = true;
         
         const userAnswer = parseInt(inputEl.value, 10);
         if (!isNaN(userAnswer) && userAnswer === problem.answer) {
@@ -169,11 +253,14 @@ async function checkAnswersAndSave() {
         }
     });
 
-    // 文章問題の答え合わせ（今回は「こたえ」の数値のみで判定）
+    // 文章問題の答え合わせ
     currentWordProblems.forEach((wp, index) => {
         const ansInput = document.getElementById(`wp_ans_${index}`);
-        if (!ansInput) return;
+        const eqInput = document.getElementById(`wp_eq_${index}`);
+        if (ansInput) ansInput.disabled = true;
+        if (eqInput) eqInput.disabled = true;
         
+        if (!ansInput) return;
         const userAnswer = parseInt(ansInput.value, 10);
         if (!isNaN(userAnswer) && userAnswer === wp.answer) {
             correctCount++;
@@ -190,26 +277,20 @@ async function checkAnswersAndSave() {
     const scoreBox = document.getElementById('scoreBox');
     if (scoreBox) {
         scoreBox.style.display = 'block';
-        scoreBox.style.padding = '15px';
-        scoreBox.style.marginTop = '20px';
-        scoreBox.style.background = '#e6fffa';
-        scoreBox.style.border = '2px solid #319795';
-        scoreBox.style.color = '#234e52';
-        scoreBox.style.fontSize = '1.2rem';
-        scoreBox.style.fontWeight = 'bold';
-        scoreBox.style.borderRadius = '8px';
         scoreBox.innerHTML = `💮 てんすう： ${score} てん (${totalCount}もんちゅう ${correctCount}もん せいかい) 💮`;
     }
 
-    if (currentUser) {
+    const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : (typeof supabase !== 'undefined' ? supabase : null);
+    if (currentUser && supabaseClient) {
         try {
-            await clientSupabase
+            await supabaseClient
                 .from('learning_scores_pb')
                 .insert([{
                     user_id: currentUser.id,
                     grade: 1,
                     subject: 'math',
-                    score: score
+                    score: score,
+                    total_questions: totalCount
                 }]);
         } catch (e) {
             console.error('成績保存エラー:', e);
@@ -218,7 +299,7 @@ async function checkAnswersAndSave() {
 }
 
 // ====================================================
-// 6. 予備問題（DBにデータがない場合の保険）
+// 8. 予備問題
 // ====================================================
 function getFallbackProblems() {
     return [

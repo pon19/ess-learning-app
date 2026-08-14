@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2ねんせい けいさんトレーニング</title>
+    <link rel="stylesheet" href="../style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../common.js" defer></script>
+    <script src="practice_math.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 共通ヘッダー -->
+        <div id="globalHeader"></div>
+
+        <div class="back-link-box">
+            <a href="menu.html" class="btn-back">⬅️ 2ねんせいメニューへもどる</a>
+        </div>
+
+        <div class="header">
+            <div>
+                <span class="title-badge badge-training">けいさん</span>
+                <h1>けいさん トレーニング</h1>
+            </div>
+        </div>
+
+        <!-- ⚙️ 設定フォーム -->
+        <section id="setup-section" class="settings-panel">
+            <h3 class="settings-title">⚙️ もんだいの 設定（せってい）</h3>
+            
+            <div class="settings-grid">
+                <div>
+                    <label for="calc-type" class="setting-label">しゅるい</label>
+                    <select id="calc-type" class="setting-select">
+                        <option value="kuku">九九（かけざん）</option>
+                        <option value="add_2digit">2けたの たしざん</option>
+                        <option value="sub_2digit">2けたの ひきざん</option>
+                        <option value="mix_2digit">2けたの たしざん・ひきざん（みっくす）</option>
+                        <option value="unit_calc">長さ・かさの けいさん (cm/mm, L/dL)</option>
+                    </select>
+                </div>
+
+                <!-- 九九選択時のみ表示する詳細設定 -->
+                <div id="kuku-options">
+                    <label for="kuku-dan" class="setting-label">だんの せんたく</label>
+                    <select id="kuku-dan" class="setting-select">
+                        <option value="all">ぜんぶの だん（ランダム）</option>
+                        <option value="1">1の段</option>
+                        <option value="2">2の段</option>
+                        <option value="3">3の段</option>
+                        <option value="4">4の段</option>
+                        <option value="5">5の段</option>
+                        <option value="6">6の段</option>
+                        <option value="7">7の段</option>
+                        <option value="8">8の段</option>
+                        <option value="9">9の段</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="problem-count" class="setting-label">もんだいすう</label>
+                    <select id="problem-count" class="setting-select">
+                        <option value="5">5もん</option>
+                        <option value="10" selected>10もん</option>
+                        <option value="15">15もん</option>
+                        <option value="20">20もん</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="start-btn" class="btn-generate">🔄 れんしゅうを はじめる！</button>
+        </section>
+
+        <!-- 問題表示エリア -->
+        <section id="quiz-section" class="hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <span id="progress-text">もんだい一覧</span>
+                <button id="reset-btn" class="btn-back">やりなおす</button>
+            </div>
+
+            <form id="quiz-form">
+                <div id="problems-container" class="calc-grid"></div>
+                <button type="submit" id="submit-btn" class="btn-check btn-check-training">こたえあわせをする 💮</button>
+            </form>
+
+            <div id="result-container" class="score-box-result hidden">
+                <h3 id="result-score"></h3>
+                <p id="result-message"></p>
+                <button id="retry-btn" class="btn-generate" style="margin-top: 1rem;">もう一度ちょうせん</button>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

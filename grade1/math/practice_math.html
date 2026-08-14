@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>けいさん トレーニング - しょうがく1ねんせい</title>
+    <link rel="stylesheet" href="../../style.css">
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../common.js"></script>
+    <script src="practice_math.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 共通ヘッダー -->
+        <div id="globalHeader"></div>
+
+        <div class="back-link-box">
+            <a href="menu.html" class="btn-back">⬅️ メニューへもどる</a>
+        </div>
+
+        <div class="header">
+            <div>
+                <span class="title-badge badge-training">トレーニング</span>
+                <h1>けいさん れんしゅう</h1>
+            </div>
+        </div>
+
+        <!-- ⚙️ 設定パネル -->
+        <div class="settings-panel">
+            <h3 class="settings-title">⚙️ もんだいの 設定（せってい）</h3>
+            
+            <div class="settings-grid">
+                <!-- 計算の種類 -->
+                <div>
+                    <label class="setting-label">しゅるい</label>
+                    <select id="settingOp" class="setting-select">
+                        <option value="mix">ごちゃまぜ (＋/－)</option>
+                        <option value="add">たしざん (＋)</option>
+                        <option value="sub">ひきざん (－)</option>
+                    </select>
+                </div>
+
+                <!-- 数字の範囲 -->
+                <div>
+                    <label class="setting-label">かずの はんい</label>
+                    <select id="settingRange" class="setting-select">
+                        <option value="10">10まで (くりあがり なし)</option>
+                        <option value="20">20まで (くりあがり あり)</option>
+                    </select>
+                </div>
+
+                <!-- 問題数 -->
+                <div>
+                    <label class="setting-label">もんだいくう</label>
+                    <select id="settingCount" class="setting-select">
+                        <option value="5">5もん</option>
+                        <option value="10" selected>10もん</option>
+                        <option value="15">15もん</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="generateBtn" class="btn-generate">
+                🔄 この 設定で もんだいを つくる
+            </button>
+        </div>
+
+        <!-- 計算問題グリッド -->
+        <div class="calc-grid" id="calcGrid"></div>
+
+        <!-- 答え合わせボタン・結果エリア -->
+        <button class="btn-check btn-check-training" id="checkBtn">こたえあわせをする 💮</button>
+        <div class="score-box-result" id="scoreBox"></div>
+    </div>
+</body>
+</html>

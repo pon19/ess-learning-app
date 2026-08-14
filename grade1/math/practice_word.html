@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ぶんしょうだい トレーニング - しょうがく1ねんせい</title>
+    <link rel="stylesheet" href="../../style.css">
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../common.js"></script>
+    <script src="practice_word.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 共通ヘッダー -->
+        <div id="globalHeader"></div>
+
+        <div class="back-link-box">
+            <a href="menu.html" class="btn-back">⬅️ メニューへもどる</a>
+        </div>
+
+        <div class="header">
+            <div>
+                <span class="title-badge badge-word-training">トレーニング</span>
+                <h1>ぶんしょうだい れんしゅう</h1>
+            </div>
+        </div>
+
+        <!-- ⚙️ 設定パネル -->
+        <div class="settings-panel-word">
+            <h3 class="settings-title-word">⚙️ もんだいの 設定（せってい）</h3>
+            
+            <div class="settings-grid">
+                <!-- 算数の種類 -->
+                <div>
+                    <label class="setting-label">しゅるい</label>
+                    <select id="settingOp" class="setting-select">
+                        <option value="mix">ごちゃまぜ (＋/－)</option>
+                        <option value="add">たしざん (＋)</option>
+                        <option value="sub">ひきざん (－)</option>
+                    </select>
+                </div>
+
+                <!-- 問題数 -->
+                <div>
+                    <label class="setting-label">もんだいくう</label>
+                    <select id="settingCount" class="setting-select">
+                        <option value="3">3もん</option>
+                        <option value="5" selected>5もん</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="generateBtn" class="btn-generate-word">
+                🔄 この 設定で もんだいを つくる
+            </button>
+        </div>
+
+        <!-- 文章問題表示エリア -->
+        <div id="wordProblemArea"></div>
+
+        <!-- 答え合わせボタン・結果エリア -->
+        <button class="btn-check btn-check-word" id="checkBtn">こたえあわせをする 💮</button>
+        <div class="score-box-result" id="scoreBox"></div>
+    </div>
+</body>
+</html>

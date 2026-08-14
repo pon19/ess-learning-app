@@ -74,12 +74,87 @@ h1 {
     margin-bottom: 15px;
 }
 
-/* 1. 計算問題レイアウト */
-.calc-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+/* ====================================================
+   📱/💻 計算問題エリアのポップなデザイン化
+   ==================================================== */
+
+/* === 計算カードレイアウト調整 === */
+
+/* カード自体を縦並び・折り返しに対応できるように拡張 */
+.calc-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
     gap: 12px;
-    margin-bottom: 20px;
+    background: #ffffff;
+    border: 2.5px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 16px 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease;
+}
+
+/* 計算式テキストエリア */
+.calc-expr-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.35rem;
+    font-weight: bold;
+    color: #2d3748;
+}
+
+.calc-expr-box .problem-text {
+    letter-spacing: 1px;
+}
+
+/* 入力欄＋単位エリア */
+.calc-input-box {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* 単位テキスト (mm, dLなど) */
+.unit-text {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #4a5568;
+}
+
+/* 正誤メッセージ表示位置（カードの下部に綺麗に収める） */
+.feedback-text {
+    width: 100%;
+    font-size: 0.95rem;
+    font-weight: bold;
+    margin-top: 4px;
+    text-align: right;
+}
+
+.feedback-text .correct {
+    color: #38a169;
+}
+
+.feedback-text .incorrect {
+    color: #e53e3e;
+}
+
+/* スマホ用の微調整 */
+@media screen and (max-width: 600px) {
+    .calc-item {
+        padding: 12px 16px;
+    }
+    
+    .calc-expr-box {
+        font-size: 1.15rem;
+    }
+
+    .calc-item .input-answer-num {
+        width: 68px;
+        height: 44px;
+        font-size: 1.25rem;
+    }
 }
 
 .calc-box {
@@ -362,5 +437,762 @@ h1 {
         border-bottom: 2px solid #000 !important;
         border-radius: 0 !important;
         background: transparent !important;
+    }
+}
+
+/* === トップページ・モーダル用追加クラス === */
+
+/* トップページコンテナ */
+.top-container {
+    max-width: 600px;
+    margin: 40px auto;
+    text-align: center;
+}
+
+/* ユーザー情報エリア */
+.user-info-box {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #edf2f7;
+    border-radius: 8px;
+    display: none;
+}
+
+.welcome-msg {
+    margin: 0 0 10px 0;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #2b6cb0;
+}
+
+.user-grade-badge {
+    background: #319795;
+    color: white;
+    font-size: 13px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+/* ボタン関係 */
+.btn-mypage {
+    display: inline-block;
+    background: #3182ce;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    margin-right: 8px;
+}
+
+.btn-logout {
+    background: #e53e3e;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-auth-open {
+    padding: 10px 20px;
+    font-size: 1rem;
+    background: #3182ce;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* 学年選択メニュー */
+.grade-select-title {
+    font-size: 1.2rem;
+    color: #2d3748;
+    margin-top: 25px;
+    margin-bottom: 15px;
+}
+
+.grade-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    margin-bottom: 30px;
+}
+
+.grade-card {
+    padding: 18px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+.grade-card.active {
+    display: block;
+    color: white;
+    text-decoration: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.grade-card.g-1 { background: #48bb78; box-shadow: 0 4px 6px rgba(72,187,120,0.2); }
+.grade-card.g-2 { background: #319795; box-shadow: 0 4px 6px rgba(49,151,149,0.2); }
+
+.grade-card.disabled {
+    background: #e2e8f0;
+    color: #a0aec0;
+    cursor: not-allowed;
+}
+
+.grade-subtext {
+    font-size: 0.8rem;
+    display: block;
+    font-weight: normal;
+    margin-top: 4px;
+}
+
+/* モーダル */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    border: none;
+    background: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.modal-tabs {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #edf2f7;
+}
+
+.modal-tab-btn {
+    padding: 8px 12px;
+    border: none;
+    background: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal-tab-btn.active {
+    color: #3182ce;
+    border-bottom: 2px solid #3182ce;
+}
+
+.modal-tab-btn.inactive {
+    color: #718096;
+}
+
+.modal-input, .modal-select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+.modal-submit-btn {
+    width: 100%;
+    padding: 10px;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-blue { background: #3182ce; }
+.btn-green { background: #48bb78; }
+.btn-orange { background: #ed8936; }
+.btn-red { background: #e53e3e; }
+.btn-gray { background: #718096; }
+
+.modal-link-group {
+    margin-top: 12px;
+    font-size: 13px;
+    text-align: right;
+}
+
+.modal-link {
+    color: #4299e1;
+    text-decoration: none;
+}
+
+.alert-notice-box {
+    background: #fff5f5;
+    border: 1px solid #feb2b2;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.notice-info-box {
+    text-align: left;
+    background: #f7fafc;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+/* === プリント学習画面（math.html等）用追加クラス === */
+
+/* ナビゲーションバー */
+.nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.btn-back {
+    text-decoration: none;
+    color: #4a5568;
+    font-weight: bold;
+}
+
+.problem-index {
+    color: #718096;
+    font-size: 1rem;
+    margin-right: 10px;
+}
+
+.word-card {
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #f7fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.word-text {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.word-formula-group {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    justify-content: flex-end;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* 入力入力欄スタイル補正 */
+.input-answer-num {
+    width: 70px;
+    height: 40px;
+    font-size: 1.3rem;
+    text-align: center;
+    border: 2px solid #cbd5e0;
+    border-radius: 8px;
+}
+
+.input-eq-text {
+    width: 120px;
+    height: 40px;
+    font-size: 1.2rem;
+    text-align: center;
+    border: 2px solid #cbd5e0;
+    border-radius: 8px;
+}
+
+/* 成績結果・履歴 */
+.score-box-result {
+    display: none;
+    margin-top: 20px;
+    padding: 15px;
+    background: #e6fffa;
+    border: 2px solid #319795;
+    color: #234e52;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.history-card {
+    margin-top: 30px;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.history-title {
+    color: #2b6cb0;
+    margin-top: 0;
+}
+
+.history-list {
+    text-align: left;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+}
+
+/* === メニュー画面（menu.html等）用追加クラス === */
+
+/* トップページへ戻るリンクエリア */
+.back-link-box {
+    margin-bottom: 15px;
+}
+
+/* タイトルバッジ（オレンジ） */
+.badge-grade-1 {
+    background-color: #ed8936;
+}
+
+/* 👑 前日のランキングエリア */
+.ranking-card {
+    background-color: #fffaf0;
+    border: 2px solid #fbd38d;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 25px;
+}
+
+.ranking-title {
+    margin-top: 0;
+    color: #dd6b20;
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+.ranking-empty-msg {
+    text-align: center;
+    color: #a0aec0;
+    padding: 15px 0;
+    font-size: 14px;
+}
+
+.ranking-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    border-bottom: 1px solid #edf2f7;
+    font-size: 14px;
+}
+
+.ranking-user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ranking-rank {
+    font-weight: bold;
+    width: 30px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.ranking-user-name {
+    font-weight: bold;
+    color: #2d3748;
+}
+
+.ranking-score-info {
+    text-align: right;
+}
+
+.ranking-score {
+    color: #e53e3e;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.ranking-attempts {
+    font-size: 11px;
+    color: #718096;
+    display: block;
+}
+
+/* 🎮 モード選択エリア */
+.mode-section-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* チャレンジカード */
+.card-challenge {
+    background: #fff5f5;
+    border: 2px solid #feb2b2;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.card-challenge-subtitle {
+    font-weight: bold;
+    color: #e53e3e;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.btn-challenge {
+    display: block;
+    background: #e53e3e;
+    color: white;
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* トレーニングカード */
+.card-training {
+    background: #f7fafc;
+    border: 2px solid #cbd5e0;
+    border-radius: 12px;
+    padding: 18px;
+}
+
+.card-training-title {
+    font-weight: bold;
+    color: #2d3748;
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+.training-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.btn-training-math {
+    background: white;
+    border: 2px solid #4299e1;
+    padding: 14px 8px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #2b6cb0;
+    font-weight: bold;
+    text-align: center;
+    font-size: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.btn-training-word {
+    background: white;
+    border: 2px solid #319795;
+    padding: 14px 8px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #234e52;
+    font-weight: bold;
+    text-align: center;
+    font-size: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* === トレーニング画面（practice_math.html等）用追加クラス === */
+
+/* タイトルバッジ（青） */
+.badge-training {
+    background-color: #3182ce;
+}
+
+/* ⚙️ 設定パネル */
+.settings-panel {
+    background: #ebf8ff;
+    border: 2px solid #90cdf4;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.settings-title {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #2b6cb0;
+    font-size: 1.1rem;
+}
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.setting-label {
+    font-weight: bold;
+    font-size: 0.85rem;
+    color: #2d3748;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.setting-select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e0;
+    font-size: 0.95rem;
+    font-weight: bold;
+}
+
+.btn-generate {
+    width: 100%;
+    background: #3182ce;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(49, 130, 206, 0.3);
+}
+
+.btn-check-training {
+    margin-top: 20px;
+}
+
+/* === ランキング表示（menu.js 動的生成用） === */
+.ranking-empty-msg {
+    text-align: center;
+    color: #a0aec0;
+    padding: 15px 0;
+    font-size: 14px;
+}
+
+.ranking-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    border-bottom: 1px solid #edf2f7;
+    font-size: 14px;
+}
+
+.ranking-user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ranking-rank {
+    font-weight: bold;
+    width: 30px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.ranking-user-name {
+    font-weight: bold;
+    color: #2d3748;
+}
+
+.ranking-score-info {
+    text-align: right;
+}
+
+.ranking-score {
+    color: #e53e3e;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.ranking-attempts {
+    font-size: 11px;
+    color: #718096;
+    display: block;
+}
+
+.ranking-error-msg {
+    color: #e53e3e;
+    font-size: 13px;
+    text-align: center;
+}
+
+/* === 文章問題トレーニング (practice_word) 用の補正スタイル === */
+
+/* バッジとボタンの配色 */
+.badge-word-training {
+    background-color: #319795;
+}
+
+.btn-check-word {
+    background: #319795;
+}
+.btn-check-word:hover {
+    background: #2b6cb0;
+}
+
+/* 設定パネル */
+.settings-panel-word {
+    background: #e6fffa;
+    border: 2px solid #b2f5ea;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.settings-title-word {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #234e52;
+    font-size: 1.1rem;
+}
+
+.btn-generate-word {
+    width: 100%;
+    background: #319795;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(49, 151, 149, 0.3);
+    margin-top: 10px;
+}
+
+/* 文章問題カード表示 */
+.word-problem-card {
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.word-problem-text {
+    font-size: 1.1rem;
+    font-weight: bold;
+    line-height: 1.6;
+    margin-bottom: 12px;
+    color: #2d3748;
+}
+
+.word-problem-index {
+    color: #319795;
+    font-size: 1.1rem;
+    margin-right: 6px;
+}
+
+.word-problem-inputs {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    background: #f7fafc;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+/* 式と答えの入力欄 */
+.input-equation {
+    width: 120px;
+    height: 38px;
+    font-size: 1rem;
+    text-align: center;
+    border: 2px solid #cbd5e0;
+    border-radius: 6px;
+    outline: none;
+}
+
+.input-equation:focus, .input-answer-num:focus {
+    border-color: #319795;
+}
+
+/* === 2年生用バッジ追加スタイル === */
+.badge-grade-2 {
+    background-color: #319795; /* エメラルドグリーン */
+}
+
+/* === 2年生追加スタイル === */
+.badge-word-training {
+    background-color: #ed8936;
+    color: #ffffff;
+}
+
+.btn-check-word {
+    background-color: #ed8936;
+    color: #ffffff;
+}
+
+.btn-check-word:hover {
+    background-color: #dd6b20;
+}
+
+/* === スマホ画面（幅600px以下）のみに適用する調整 === */
+@media screen and (max-width: 600px) {
+    /* タイトル内のWebプリント崩れ防止 */
+    .title-nowrap {
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    /* スマホ時のみユーザー情報エリアをフレキシブルに1行配置 */
+    .user-info-box {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .welcome-msg {
+        margin: 0 !important;
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
+    }
+
+    .user-grade-badge {
+        display: inline-block;
+        flex-shrink: 0;
+        white-space: nowrap;
+        margin-left: 4px;
     }
 }
