@@ -191,14 +191,14 @@ function renderProblems(problems) {
                 <span class="problem-index">(${index + 1})</span>
                 <span>${p.p1} ${p.operator} ${p.p2} ＝</span>
             </div>
-            <input type="number" id="answer_${index}" class="input-answer-num" pattern="\\d*">
+            <input type="number" id="answer_${index}" class="input-answer-num" pattern="\\d*" inputmode="numeric">
         `;
         calcGrid.appendChild(div);
     });
 }
 
 // ====================================================
-// 6. 文章問題の描画
+// 6. 文章問題の描画（＋ / － ボタン対応）
 // ====================================================
 function renderWordProblems(wordProblems) {
     const wordProblemArea = document.getElementById('wordProblemArea');
@@ -213,16 +213,46 @@ function renderWordProblems(wordProblems) {
         div.innerHTML = `
             <div class="word-text">
                 <span class="problem-index">(${index + 1})</span>
-                ${wp.text}
+                ${escapeHTML(wp.text)}
             </div>
             <div class="word-formula-group">
-                しき：<input type="text" id="wp_eq_${index}" class="input-eq-text">
-                こたえ：<input type="number" id="wp_ans_${index}" class="input-answer-num">
+                <div class="equation-input-group" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    しき：<input type="text" id="wp_eq_${index}" class="input-eq-text" inputmode="text" autocomplete="off" style="width: 120px;">
+                    <div class="symbol-btn-group" style="display: inline-flex; gap: 6px;">
+                        <button type="button" class="btn-symbol" onclick="insertSymbol('wp_eq_${index}', '+')">＋</button>
+                        <button type="button" class="btn-symbol" onclick="insertSymbol('wp_eq_${index}', '-')">－</button>
+                    </div>
+                </div>
+                <div style="margin-top: 8px;">
+                    こたえ：<input type="number" id="wp_ans_${index}" class="input-answer-num" inputmode="numeric" style="width: 80px;">
+                </div>
             </div>
         `;
         wordProblemArea.appendChild(div);
     });
 }
+
+/**
+ * 入力欄のカーソル位置（または末尾）に指定の記号を挿入する
+ */
+function insertSymbol(inputId, symbol) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+
+    input.focus();
+
+    const start = input.selectionStart ?? input.value.length;
+    const end = input.selectionEnd ?? input.value.length;
+    const text = input.value;
+
+    input.value = text.slice(0, start) + symbol + text.slice(end);
+
+    const newPos = start + symbol.length;
+    input.setSelectionRange(newPos, newPos);
+}
+
+// onclick からの呼び出し用に window へ登録
+window.insertSymbol = insertSymbol;
 
 // ====================================================
 // 7. 答え合わせ ＆ 成績保存
@@ -261,14 +291,35 @@ async function checkAnswersAndSave() {
         if (eqInput) eqInput.disabled = true;
         
         if (!ansInput) return;
-        const userAnswer = parseInt(ansInput.value, 10);
-        if (!isNaN(userAnswer) && userAnswer === wp.answer) {
+
+        // 解答（数値）判定
+        const userAns = parseInt(ansInput.value, 10);
+        const isAnsCorrect = !isNaN(userAns) && userAns === wp.answer;
+
+        // 式（文字列）判定
+        let isEqCorrect = true;
+        if (eqInput && wp.equation) {
+            const normalizedUserEq = normalizeEquation(eqInput.value);
+            const normalizedTargetEq = normalizeEquation(wp.equation);
+            isEqCorrect = (normalizedUserEq === normalizedTargetEq);
+        }
+
+        // 式と答えの両方が正解の場合に得点加算
+        if (isAnsCorrect && isEqCorrect) {
             correctCount++;
             ansInput.style.borderColor = '#48bb78';
             ansInput.style.backgroundColor = '#f0fff4';
+            if (eqInput) {
+                eqInput.style.borderColor = '#48bb78';
+                eqInput.style.backgroundColor = '#f0fff4';
+            }
         } else {
             ansInput.style.borderColor = '#e53e3e';
             ansInput.style.backgroundColor = '#fff5f5';
+            if (eqInput) {
+                eqInput.style.borderColor = isEqCorrect ? '#48bb78' : '#e53e3e';
+                eqInput.style.backgroundColor = isEqCorrect ? '#f0fff4' : '#fff5f5';
+            }
         }
     });
 
@@ -331,4 +382,30 @@ function getFallbackWordProblems() {
             answer: 7
         }
     ];
+}
+
+/**
+ * 式の表記ゆれ防止（全角英数・全角記号の半角化）
+ */
+function normalizeEquation(str) {
+    if (!str) return '';
+    return str
+        .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0))
+        .replace(/＋/g, '+')
+        .replace(/[－ー-]/g, '-')
+        .replace(/\s+/g, '');
+}
+
+/**
+ * エスケープ処理
+ */
+function escapeHTML(str) {
+    if (!str) return '';
+    return str.replace(/[&<>'"]/g, tag => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+        '"': '&quot;'
+    }[tag] || tag));
 }

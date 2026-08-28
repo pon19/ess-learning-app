@@ -98,34 +98,68 @@ function generateNewProblems() {
 }
 
 /**
- * 画面描画
+ * 文章問題の描画（＋ / － ボタン対応）
  */
 function renderWordProblems(wordProblems) {
-    const area = document.getElementById('wordProblemArea');
-    if (!area) return;
-    area.innerHTML = '';
+    const wordProblemArea = document.getElementById('wordProblemArea');
+    if (!wordProblemArea) return;
+
+    wordProblemArea.innerHTML = '';
 
     wordProblems.forEach((wp, index) => {
         const div = document.createElement('div');
-        div.className = 'word-problem-card';
+        div.className = 'word-card';
 
         div.innerHTML = `
-            <div class="word-problem-text">
-                <span class="word-problem-index">(${index + 1})</span>
-                ${wp.text}
+            <div class="word-text">
+                <span class="problem-index">(${index + 1})</span>
+                ${escapeHTML(wp.text)}
             </div>
-            <div class="word-problem-inputs">
-                しき：<input type="text" id="wp_eq_${index}" class="wp-input input-equation" data-index="${index}" data-type="eq">
-                こたえ：<input type="number" id="wp_ans_${index}" class="wp-input input-answer-num" data-index="${index}" data-type="ans" inputmode="numeric">
+            <div class="word-formula-group">
+                <div class="equation-input-group" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    しき：<input type="text" id="wp_eq_${index}" class="input-eq-text wp-input" data-index="${index}" data-type="eq" inputmode="text" autocomplete="off" style="width: 120px;">
+                    <div class="symbol-btn-group" style="display: inline-flex; gap: 6px;">
+                        <button type="button" class="btn-symbol" onclick="insertSymbol('wp_eq_${index}', '+')">＋</button>
+                        <button type="button" class="btn-symbol" onclick="insertSymbol('wp_eq_${index}', '-')">－</button>
+                    </div>
+                </div>
+                <div style="margin-top: 8px;">
+                    こたえ：<input type="number" id="wp_ans_${index}" class="input-answer-num wp-input" data-index="${index}" data-type="ans" inputmode="numeric" style="width: 80px;">
+                </div>
             </div>
         `;
-        area.appendChild(div);
+        wordProblemArea.appendChild(div);
     });
 
+    // 入力監視イベント追加（入力時にセッション保存）
     document.querySelectorAll('.wp-input').forEach(input => {
         input.addEventListener('input', saveInputState);
     });
 }
+
+/**
+ * 指定された入力欄のカーソル位置（または末尾）に記号を挿入する関数
+ */
+function insertSymbol(inputId, symbol) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+
+    input.focus();
+
+    const start = input.selectionStart ?? input.value.length;
+    const end = input.selectionEnd ?? input.value.length;
+
+    const val = input.value;
+    input.value = val.substring(0, start) + symbol + val.substring(end);
+
+    const newPos = start + symbol.length;
+    input.setSelectionRange(newPos, newPos);
+
+    // 記号ボタンを押した時も入力を一時保存
+    saveInputState();
+}
+
+window.insertSymbol = insertSymbol;
 
 /**
  * 入力状態の自動保持
@@ -174,7 +208,7 @@ function restoreSavedState() {
 }
 
 /**
- * 採点処理（数値を優先判定）
+ * 採点処理
  */
 function checkAnswers() {
     let correctCount = 0;
@@ -234,6 +268,20 @@ function normalizeEquation(str) {
     return str
         .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0))
         .replace(/＋/g, '+')
-        .replace(/－/g, '-')
+        .replace(/[－ー-]/g, '-')
         .replace(/\s+/g, '');
+}
+
+/**
+ * エスケープ処理
+ */
+function escapeHTML(str) {
+    if (!str) return '';
+    return str.replace(/[&<>'"]/g, tag => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+        '"': '&quot;'
+    }[tag] || tag));
 }
