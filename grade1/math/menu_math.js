@@ -19,6 +19,7 @@ async function loadYesterdayRanking() {
             .from('daily_rankings_yesterday_pb')
             .select('*')
             .eq('grade', 1)
+            .eq('subject', 'math')
             .order('max_score', { ascending: false })
             .limit(5); // 上位5名を表示
 

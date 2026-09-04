@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>しょうがくせい Webプリント</title>
     
-    <link rel="icon" href="icon_web_top.png">
+    <link rel="icon" href="data:,">
     <link rel="stylesheet" href="style.css">
     <script> window.IS_TOP_PAGE = true; </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -32,8 +32,8 @@
         <h2 class="grade-select-title">👇 学年（がくねん）を えらんでね</h2>
 
         <div class="grade-grid">
-            <a href="grade1/menu.html" class="grade-card active g-1">🎒 1ねんせい</a>
-            <a href="grade2/menu.html" class="grade-card active g-2">🐥 2ねんせい</a>
+            <a href="grade1/menu_grade1.html" class="grade-card active g-1">🎒 1ねんせい</a>
+            <a href="grade2/menu_math.html" class="grade-card active g-2">🐥 2ねんせい</a>
             <div class="grade-card disabled">🐥 3ねんせい <span class="grade-subtext">(じゅんびちゅう)</span></div>
             <div class="grade-card disabled">🐥 4ねんせい <span class="grade-subtext">(じゅんびちゅう)</span></div>
             <div class="grade-card disabled">🐥 5ねんせい <span class="grade-subtext">(じゅんびちゅう)</span></div>
@@ -51,10 +51,24 @@
       <div class="news-box">
         <h3 class="news-title">📢 お知らせ・更新情報</h3>
         <ul class="news-list">
-            <!-- 👇 本日のアップデートのお知らせ -->
+            <!-- 👇 最新のお知らせ -->
+            <li>
+              <span class="news-date">2026/09/05</span>
+              <span class="news-tag new">NEW</span>
+              <span class="news-text">
+                <strong>【機能改善・アップデートのお知らせ】</strong><br>
+                1年生の国語メニューおよびランキング表示の改善を行いました！<br><br>
+                <strong>【主なアップデート内容】</strong>
+                <ul style="margin: 5px 0 0 15px; padding: 0; list-style-type: disc;">
+                  <li><strong>1年生向けの国語メニューページのレイアウトを刷新しました！</strong></li>
+                  <li><strong>算数と国語のランキング表示を教科ごとに分離・修正しました</strong></li>
+                </ul>
+              </span>
+            </li>
+
+            <!-- 過去のお知らせ -->
             <li>
               <span class="news-date">2026/08/28</span>
-              <span class="news-tag new">NEW</span>
               <span class="news-text">
                 <strong>【機能追加・アップデートのお知らせ】</strong><br>
                 1年生向けの新しい機能と操作性の向上を行いました！<br><br>
@@ -67,7 +81,6 @@
               </span>
             </li>
 
-            <!-- 過去のお知らせ -->
             <li>
               <span class="news-date">2026/08/14</span>
               <span class="news-text">
@@ -113,8 +126,7 @@
           </ul>
         </div>
     </div>
-
-
+    
     <!-- ログイン / 新規登録 / サポート / ニックネーム登録 モーダル -->
     <div id="authModal" class="modal-overlay">
         <div class="modal-content">
