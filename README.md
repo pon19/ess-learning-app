@@ -1,4 +1,4 @@
-# math-app-test
+# math-app
 
 URL
-https://pon19.github.io/ess-learning-app-test/
+https://pon19.github.io/ess-learning-app/
